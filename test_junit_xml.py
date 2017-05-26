@@ -7,8 +7,6 @@ import textwrap
 from xml.dom import minidom
 import codecs
 
-from six import u, PY2
-
 from junit_xml import TestCase, TestSuite, decode
 
 
@@ -31,8 +29,7 @@ def serialize_and_read(test_suites, to_file=False, prettyprint=False, encoding=N
     else:
         xml_string = TestSuite.to_xml_string(
             test_suites, prettyprint=prettyprint, encoding=encoding)
-        if PY2:
-            assert isinstance(xml_string, unicode)
+        assert isinstance(xml_string, unicode)
         print("Serialized XML to string:\n%s" % xml_string)
         if encoding:
             xml_string = xml_string.encode(encoding)
@@ -256,8 +253,7 @@ class TestSuiteTests(unittest.TestCase):
         test_suites = [TestSuite(name='suite1', test_cases=[TestCase(name='Test1')]),
                        TestSuite(name='suite2', test_cases=[TestCase(name='Test2')])]
         xml_string = TestSuite.to_xml_string(test_suites)
-        if PY2:
-            self.assertTrue(isinstance(xml_string, unicode))
+        self.assertTrue(isinstance(xml_string, unicode))
         expected_xml_string = textwrap.dedent("""
             <?xml version="1.0" ?>
             <testsuites disabled="0" errors="0" failures="0" tests="2" time="0.0">
@@ -455,20 +451,18 @@ class TestCaseTests(unittest.TestCase):
     def test_init_legal_unicode_char(self):
         tc = TestCase('Failure-Message')
         tc.add_failure_info(
-            u("failure message with legal unicode char: [\x22]"))
+            u"failure message with legal unicode char: [\x22]")
         (ts, tcs) = serialize_and_read(TestSuite('test', [tc]))[0]
         verify_test_case(
-            self, tcs[0], {'name': 'Failure-Message'}, failure_message=u(
-                "failure message with legal unicode char: [\x22]"))
+            self, tcs[0], {'name': 'Failure-Message'}, failure_message=u"failure message with legal unicode char: [\x22]")
 
     def test_init_illegal_unicode_char(self):
         tc = TestCase('Failure-Message')
         tc.add_failure_info(
-            u("failure message with illegal unicode char: [\x02]"))
+            u"failure message with illegal unicode char: [\x02]")
         (ts, tcs) = serialize_and_read(TestSuite('test', [tc]))[0]
         verify_test_case(
-            self, tcs[0], {'name': 'Failure-Message'}, failure_message=u(
-                "failure message with illegal unicode char: []"))
+            self, tcs[0], {'name': 'Failure-Message'}, failure_message=u"failure message with illegal unicode char: []")
 
     def test_init_utf8(self):
         tc = TestCase(name='Test äöü', classname='some.class.name.äöü',

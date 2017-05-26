@@ -6,8 +6,6 @@ import re
 import xml.etree.ElementTree as ET
 import xml.dom.minidom
 
-from six import u, iteritems, PY2
-
 try:
     # Python 2
     unichr
@@ -58,18 +56,15 @@ def decode(var, encoding):
     """
     If not already unicode, decode it.
     """
-    if PY2:
-        if isinstance(var, unicode):
-            ret = var
-        elif isinstance(var, str):
-            if encoding:
-                ret = var.decode(encoding)
-            else:
-                ret = unicode(var)
+    if isinstance(var, unicode):
+        ret = var
+    elif isinstance(var, str):
+        if encoding:
+            ret = var.decode(encoding)
         else:
             ret = unicode(var)
     else:
-        ret = str(var)
+        ret = unicode(var)
     return ret
 
 
@@ -260,7 +255,7 @@ class TestSuite(object):
             for key in ['time']:
                 attributes[key] += float(ts_xml.get(key, 0))
             xml_element.append(ts_xml)
-        for key, value in iteritems(attributes):
+        for key, value in attributes.iteritems():
             xml_element.set(key, str(value))
 
         xml_string = ET.tostring(xml_element, encoding=encoding)
@@ -312,7 +307,7 @@ class TestSuite(object):
                           for (low, high) in illegal_unichrs
                           if low < sys.maxunicode]
 
-        illegal_xml_re = re.compile(u('[%s]') % u('').join(illegal_ranges))
+        illegal_xml_re = re.compile(u'[%s]' % u''.join(illegal_ranges))
         return illegal_xml_re.sub('', string_to_clean)
 
 
